@@ -151,27 +151,27 @@
                 });
             });
     }
-    document.getElementById('searchBtn').addEventListener('click', () => {
-        const productName = document.getElementById('productInput').value;
-        fetch(`/api/products?name=${productName}`)
-            .then(response => response.json())
-            .then(data => {
-                const productList = document.getElementById('productList');
-                productList.innerHTML = '';
-                data.forEach((product, index) => {
-                    const productDiv = document.createElement('div');
-                    productDiv.classList.add('product');
-                    productDiv.innerHTML = `
-                        <h3>${index + 1}. ${product.name} (${product.brand})</h3>
-                        <img src="${product.image_url}" alt="${product.name}">
-                        <p><a href="${product.web_url}" target="_blank">More Info</a></p>
-                        <button class="btn" onclick="window.location.href='/summary/${index}/simple'">Simple Summary</button>
-                        <button class="btn" onclick="window.location.href='/summary/${index}/deeper'">Deeper Summary</button>
-                    `;
-                    productList.appendChild(productDiv);
-                });
-            });
-    });
+    // document.getElementById('searchBtn').addEventListener('click', () => {
+    //     const productName = document.getElementById('productInput').value;
+    //     fetch(`/api/products?name=${productName}`)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const productList = document.getElementById('productList');
+    //             productList.innerHTML = '';
+    //             data.forEach((product, index) => {
+    //                 const productDiv = document.createElement('div');
+    //                 productDiv.classList.add('product');
+    //                 productDiv.innerHTML = `
+    //                     <h3>${index + 1}. ${product.name} (${product.brand})</h3>
+    //                     <img src="${product.image_url}" alt="${product.name}">
+    //                     <p><a href="${product.web_url}" target="_blank">More Info</a></p>
+    //                     <button class="btn" onclick="window.location.href='/summary/${index}/simple'">Simple Summary</button>
+    //                     <button class="btn" onclick="window.location.href='/summary/${index}/deeper'">Deeper Summary</button>
+    //                 `;
+    //                 productList.appendChild(productDiv);
+    //             });
+    //         });
+    // });
 </script>
 
 </body>

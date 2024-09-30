@@ -100,6 +100,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import requests
 import markdown2
+import google.generativeai as genai
 
 app = Flask(__name__)
 
@@ -115,44 +116,82 @@ def get_data(product_name):
     data = response.json()
     return data['products'][:5]  # Return top 5 results
 
+
 # LLM function based on your provided use case
+# def LLM(product, tone):
+    # name = product.get('product_name', 'Not mentioned')
+    # brand = product.get('brands', 'Not mentioned')
+    # nutriscore_grade = product.get('nutriscore_grade', 'Not mentioned')
+    # eco_score = product.get('ecoscore_grade', 'Not mentioned')
+    # packaging = product.get('packaging', 'Not mentioned')
+    # ingredients = product.get('ingredients_text', 'Not mentioned')
+    # nutrients = product.get('nutrients_data', 'Not mentioned')
+    # image_url = product.get('image_url', 'Not mentioned')
+    # web_url = product.get('url', 'Not mentioned')
+
+    # # Generate prompt based on tone
+    # if tone == 'simple':
+    #     prompt = f"""
+    #     The product name is {name}, brand is {brand}, and its eco-score is {eco_score}, nutriscore grade is {nutriscore_grade}.
+    #     Provide a simple analysis including:
+    #     1. Positive aspects.
+    #     2. Negative aspects.
+    #     3. Health impact.
+    #     4. Environmental impact.
+    #     """
+    # else:
+    #     prompt = f"""
+    #     The product name is {name}, brand is {brand}, and its eco-score is {eco_score}, nutriscore grade is {nutriscore_grade}.
+    #     Provide a deeper analysis including:
+    #     1. Positive aspects.
+    #     2. Negative aspects.
+    #     3. Health impact (positive and negative).
+    #     4. Environmental impact (packaging and ingredients).
+    #     5. Include relevant health articles if available.
+    #     """
+
+    # # Using a sample response instead of actual API call to Generative AI
+    # response = {
+    #     'text': f'# Product Summary\n\n**Product Name**: {name}\n\nEco Score: {eco_score}\n\nSummary: {tone}'
+    # }
+    # return response['text']
 def LLM(product, tone):
-    name = product.get('product_name', 'Not mentioned')
-    brand = product.get('brands', 'Not mentioned')
-    nutriscore_grade = product.get('nutriscore_grade', 'Not mentioned')
-    eco_score = product.get('ecoscore_grade', 'Not mentioned')
-    packaging = product.get('packaging', 'Not mentioned')
-    ingredients = product.get('ingredients_text', 'Not mentioned')
-    nutrients = product.get('nutrients_data', 'Not mentioned')
-    image_url = product.get('image_url', 'Not mentioned')
-    web_url = product.get('url', 'Not mentioned')
+        name = product.get('product_name', 'Not mentioned')
+        brand = product.get('brands', 'Not mentioned')
+        nutriscore_grade = product.get('nutriscore_grade', 'Not mentioned')
+        eco_score = product.get('ecoscore_grade', 'Not mentioned')
+        packaging = product.get('packaging', 'Not mentioned')
+        ingredients = product.get('ingredients_text', 'Not mentioned')
+        nutrients = product.get('nutrients_data', 'Not mentioned')
+        image_url = product.get('image_url', 'Not mentioned')
+        web_url = product.get('url', 'Not mentioned')
 
-    # Generate prompt based on tone
-    if tone == 'simple':
-        prompt = f"""
-        The product name is {name}, brand is {brand}, and its eco-score is {eco_score}, nutriscore grade is {nutriscore_grade}.
-        Provide a simple analysis including:
-        1. Positive aspects.
-        2. Negative aspects.
-        3. Health impact.
-        4. Environmental impact.
-        """
-    else:
-        prompt = f"""
-        The product name is {name}, brand is {brand}, and its eco-score is {eco_score}, nutriscore grade is {nutriscore_grade}.
-        Provide a deeper analysis including:
-        1. Positive aspects.
-        2. Negative aspects.
-        3. Health impact (positive and negative).
-        4. Environmental impact (packaging and ingredients).
-        5. Include relevant health articles if available.
-        """
+        # Generate prompt based on tone
+        if tone == 'simple':
+            prompt = f"""
+            The product name is {name}, brand is {brand}, and its eco-score is {eco_score}, nutriscore grade is {nutriscore_grade}.
+            Provide a simple analysis including:
+            1. Positive aspects.
+            2. Negative aspects.
+            3. Health impact.
+            4. Environmental impact.
+            """
+        else:
+            prompt = f"""
+            The product name is {name}, brand is {brand}, and its eco-score is {eco_score}, nutriscore grade is {nutriscore_grade}.
+            Provide a deeper analysis including:
+            1. Positive aspects.
+            2. Negative aspects.
+            3. Health impact (positive and negative).
+            4. Environmental impact (packaging and ingredients).
+            5. Include relevant health articles if available.
+            """
 
-    # Using a sample response instead of actual API call to Generative AI
-    response = {
-        'text': f'# Product Summary\n\n**Product Name**: {name}\n\nEco Score: {eco_score}\n\nSummary: {tone}'
-    }
-    return response['text']
+        genai.configure(api_key='AIzaSyD5yLv8zkGNC7YbxxODLqlMJJKTv8VWdQw')
+        model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+        response = model.generate_content(prompt)
+        return response.text
+
 
 
 @app.route('/')
