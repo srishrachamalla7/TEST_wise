@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Search</title>
+    <script>
+        async function searchProducts() {
+            const productName = document.getElementById('productName').value;
+            const response = await fetch(`/api/products?name=${productName}`);
+            const products = await response.json();
+
+            const resultsTable = document.getElementById('results');
+            resultsTable.innerHTML = `
+                <tr>
+                    <th>Product Name</th>
+                    <th>Brand</th>
+                    <th>Action</th>
+                </tr>`;
+
+            products.forEach((product, index) => {
+                resultsTable.innerHTML += `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>${product.brand}</td>
+                        <td>
+                            <a href="/summary/${index}/simple">Simple Summary</a> | 
+                            <a href="/summary/${index}/detailed">Detailed Summary</a>
+                        </td>
+                    </tr>`;
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Search for Products</h1>
+    <input type="text" id="productName" placeholder="Enter product name">
+    <button onclick="searchProducts()">Search</button>
+
+    <h2>Results</h2>
+    <table id="results" border="1">
+        <tr>
+            <th>Product Name</th>
+            <th>Brand</th>
+            <th>Action</th>
+        </tr>
+    </table>
+</body>
+</html>

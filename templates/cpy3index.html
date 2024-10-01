@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Analysis</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Product Analysis</h1>
+        <form id="product-form">
+            <div class="form-group">
+                <label for="product-name">Product Name</label>
+                <input type="text" class="form-control" id="product-name" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+
+        <h2 class="mt-5">Top 5 Products</h2>
+        <table class="table table-bordered mt-3" id="product-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Brand</th>
+                    <th>Image</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div id="summary-section" class="mt-5" style="display: none;">
+            <h2>Summary</h2>
+            <div id="summary-content"></div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#product-form').submit(function(event) {
+                event.preventDefault();
+                const productName = $('#product-name').val();
+
+                // Fetch product data
+                $.get(`/api/products?name=${productName}`, function(products) {
+                    const productTableBody = $('#product-table tbody');
+                    productTableBody.empty();
+
+                    products.forEach((product, index) => {
+                        productTableBody.append(`
+                            <tr>
+                                <td>${product.name}</td>
+                                <td>${product.brand}</td>
+                                <td><img src="${product.image_url}" alt="${product.name}" width="100"></td>
+                                <td>
+                                    <button class="btn btn-info" onclick="getSummary(${index}, 'simple')">Simple Summary</button>
+                                    <button class="btn btn-info" onclick="getSummary(${index}, 'detailed')">Detailed Summary</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                });
+            });
+        });
+
+        function getSummary(productId, tone) {
+            const productName = $('#product-name').val();
+            $.get(`/summary/${productId}/${tone}?name=${productName}`, function(data) {
+                $('#summary-content').html(data.summary);
+                $('#summary-section').show();
+            });
+        }
+    </script>
+</body>
+</html>

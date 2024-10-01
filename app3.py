@@ -1,13 +1,21 @@
-
+from flask import Flask, jsonify, request, render_template
 import requests
 import google.generativeai as genai
+import os
+import markdown2
 
-class OpenFoodFacts:
-    # Function to get data from OpenFoodFacts API
-    def get_data(self,product_name):
-        
-        url = "https://world.openfoodfacts.org/cgi/search.pl"
-        params = {
+
+
+
+app = Flask(__name__)
+
+# Configure Gemini API (Use your actual API key)
+genai.configure(api_key='AIzaSyD5yLv8zkGNC7YbxxODLqlMJJKTv8VWdQw')
+
+# Function to get data from OpenFoodFacts API
+def get_data(product_name):
+    url = "https://world.openfoodfacts.org/cgi/search.pl"
+    params = {
             'search_terms': product_name,
             'search_simple': 1,
             'json': 1,
@@ -15,21 +23,49 @@ class OpenFoodFacts:
             'tag_contains_0': 'contains',
             'tag_0': 'India',
         }
-        response = requests.get(url, params=params)
-        data = response.json()
-        return data['products'][:5]  # Return top 5 results
+    response = requests.get(url, params=params)
+    data = response.json()
+    if 'products' not in data or len(data['products']) == 0:
+        return []  # Return empty if no products found
+    # print(data['products'][:5])
+    # if product dosent have name field then remove the product
+    data['products'] = [p for p in data['products'] if 'product_name' in p]
+    print(data['products'][:5])
+    return data['products'][:5]  # Return top 5 results
 
-    # Function to extract specific info from product
-    def product_info_extraction(self,product):
-        name = product.get('product_name', 'Not mentioned')
-        brand = product.get('brands', 'Not mentioned')
-        image_url = product.get('image_url', 'Not mentioned')
-        web_url = product.get('url', 'Not mentioned')
-        return {"name": name, "brand": brand, "image_url": image_url, "web_url": web_url}
+# Function to generate product analysis using Gemini
+def generate_summary(product, tone):
+    # name = product.get('product_name', 'Not mentioned')
+    # brand = product.get('brands', 'Not mentioned')
+    # nutriscore_grade = product.get('nutriscore_grade', 'Not mentioned')
+    # eco_score = product.get('ecoscore_grade', 'Not mentioned')
 
-    # Function to generate LLM prompt
-    def LLM(self,product, tone):
-        name = product.get('product_name', 'Not mentioned')
+    # # Generate prompt based on tone
+    # if tone == 'simple':
+    #     prompt = f"""
+    #     The product name is {name}, brand is {brand}, and its eco-score is {eco_score}, nutriscore grade is {nutriscore_grade}.
+    #     Provide a simple analysis including:
+    #     1. Positive aspects.
+    #     2. Negative aspects.
+    #     3. Health impact.
+    #     4. Environmental impact.
+    #     """
+    # else:
+    #     prompt = f"""
+    #     The product name is {name}, brand is {brand}, and its eco-score is {eco_score}, nutriscore grade is {nutriscore_grade}.
+    #     Provide a deeper analysis including:
+    #     1. Positive aspects.
+    #     2. Negative aspects.
+    #     3. Health impact (positive and negative).
+    #     4. Environmental impact (packaging and ingredients).
+    #     5. Include relevant health articles if available.
+    #     """
+        print('##########################################')
+        print(product)
+        print('##########################################')
+        product = product.get('product')
+        name = product.get('name', 'Not mentioned')
+        print(name)
         brand = product.get('brands', 'Not mentioned')
         nutriscore_grade = product.get('nutriscore_grade', 'Not mentioned')
         eco_score = product.get('ecoscore_grade', 'Not mentioned')
@@ -100,53 +136,65 @@ class OpenFoodFacts:
     """
 
 
-        genai.configure(api_key='AIzaSyD5yLv8zkGNC7YbxxODLqlMJJKTv8VWdQw')
+    # Generate content using Gemini LLM
         model = genai.GenerativeModel(model_name="gemini-1.5-flash")
         response = model.generate_content(prompt)
-        return response.text
+        return {"summary": response.text}
 
+# API route to get product info
+@app.route('/api/products', methods=['GET'])
+def get_products():
+    product_name = request.args.get('name')
+    products = get_data(product_name)
+    if not products:
+        return jsonify({"error": "No products found"}), 404
 
-    def interface(self,product_name):
-        # Step 1: Fetch product data
-        products = self.get_data(product_name)
-        #   print(products)
-        # Step 2: Extract product info and show in table
-        extracted_data = [self.product_info_extraction(p) for p in products]
-        #   print(extracted_data)
+    # Extract basic info for the frontend
+    product_info = [{
+        # "name": product.get('product_name', 'Not mentioned'),
+        # "brand": product.get('brands', 'Not mentioned'),
+        # "image_url": product.get('image_url', 'Not mentioned'),
+        # "web_url": product.get('url', 'Not mentioned'),
+        "name" : product.get('product_name', 'Not mentioned'),
+        "brand" : product.get('brands', 'Not mentioned'),
+        "nutriscore_grade" : product.get('nutriscore_grade', 'Not mentioned'),
+        "eco_score" : product.get('ecoscore_grade', 'Not mentioned'),
+        "packaging" : product.get('packaging', 'Not mentioned'),
+        "ingredients" : product.get('ingredients_text', 'Not mentioned'),
+        "nutrients" : product.get('nutrients_data', 'Not mentioned'),
+        "image_url" : product.get('image_url', 'Not mentioned'),
+        "web_url" : product.get('url', 'Not mentioned'),
+        "barcode" : product.get('_id'),
+        "vitamins" : product.get('vitamins_tags', 'Not mentioned'),
+        "keywords" : product.get('_keywords', 'Not mentioned'),
+        "nova" : product.get('nova_groups_tags', 'Not mentioned')
 
-        # Create Gradio components
-        for p in extracted_data:
-            print("name is " + p['name'])
-            print("brand is " + p['brand'])
-            print("image_url is " + p['image_url'])
-            print("web_url is " + p['web_url'])
+    } for product in products]
 
+    return jsonify(product_info), 200
 
-        # product_names = [p['name'] for p in extracted_data]
-        # print(product_names)
-        # Dropdown to select product
-        product_name_sel = int(input("Enter the prod number you want"))
-        product_names = products[product_name_sel-1]
-        #   print(product_names)
-        print("name of the product is " + extracted_data[product_name_sel-1]['name'])
-
-
-        # product_dropdown = gr.Dropdown(label="Select Product", choices=product_names)
-
-        tone = int(input("Enter the tone you want 1 -> simple and 2 -> deeper"))
-        if tone == 1:
-            tone = "simple"
-        else:
-            tone = "deeper"
-        print(tone)
-        
-        summ = self.LLM(product_names,tone)
-        print(summ)
-
-        
-
-if __name__ == "__main__":
+# API route to get product summary
+@app.route('/api/summary', methods=['POST'])
+def get_summary():
+    data = request.json
+    print(data)
+    product = data.get('product')
+    tone = data.get('tone')
     
-    OFF = OpenFoodFacts()
-    prod_name = input("Enter the product name: ")
-    data = OFF.interface(prod_name)
+    if not product or not tone:
+        return jsonify({"error": "Invalid data"}), 400
+
+    summary = generate_summary(data, tone)
+    # print(summary)
+    # return jsonify(markdown2.markdown(summary)),200
+
+    return jsonify(summary), 200
+    # return 200
+
+# Route for the frontend
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)

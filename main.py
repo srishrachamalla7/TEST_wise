@@ -105,6 +105,20 @@ import google.generativeai as genai
 app = Flask(__name__)
 
 # Function to get data from OpenFoodFacts API
+# def get_data(product_name):
+#     url = "https://world.openfoodfacts.org/cgi/search.pl"
+#     params = {
+#         'search_terms': product_name,
+#         'search_simple': 1,
+#         'json': 1
+#     }
+#     response = requests.get(url, params=params)
+#     data = response.json()
+#     return data['products'][:5]  # Return top 5 results
+import requests
+from flask import jsonify
+
+# Function to get data from OpenFoodFacts API
 def get_data(product_name):
     url = "https://world.openfoodfacts.org/cgi/search.pl"
     params = {
@@ -112,9 +126,26 @@ def get_data(product_name):
         'search_simple': 1,
         'json': 1
     }
-    response = requests.get(url, params=params)
-    data = response.json()
-    return data['products'][:5]  # Return top 5 results
+
+    try:
+        response = requests.get(url, params=params)
+
+        # Check if the response was successful (status code 200)
+        if response.status_code != 200:
+            return jsonify({"error": f"Failed to fetch data from OpenFoodFacts API. Status code: {response.status_code}"})
+
+        # Check if the content is in JSON format
+        try:
+            data = response.json()
+        except ValueError:
+            return jsonify({"error": "Invalid JSON response from OpenFoodFacts API"})
+
+        # Return the top 5 products
+        return data.get('products', [])[:5]
+
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"An error occurred: {str(e)}"})
+
 
 
 # LLM function based on your provided use case

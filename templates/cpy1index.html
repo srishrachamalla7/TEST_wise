@@ -90,8 +90,8 @@
 
 
 <header>
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ConsumNice Logo"> <!-- Replace with actual file name -->
-    <h1>ConsumNice</h1>
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ConsumeNice Logo"> <!-- Replace with actual file name -->
+    <h1>ConsumeNice</h1>
 </header>
 
 
@@ -139,7 +139,7 @@
             .then(response => response.json())
             .then(products => {
                 const selectedProduct = products[productIndex];
-                fetch('/api/summary', {
+                fetch('summary', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ product: selectedProduct, tone: tone })
@@ -151,28 +151,36 @@
                 });
             });
     }
-    document.getElementById('searchBtn').addEventListener('click', () => {
-        const productName = document.getElementById('productInput').value;
-        fetch(`/api/products?name=${productName}`)
-            .then(response => response.json())
-            .then(data => {
-                const productList = document.getElementById('productList');
-                productList.innerHTML = '';
-                data.forEach((product, index) => {
-                    const productDiv = document.createElement('div');
-                    productDiv.classList.add('product');
-                    productDiv.innerHTML = `
-                        <h3>${index + 1}. ${product.name} (${product.brand})</h3>
-                        <img src="${product.image_url}" alt="${product.name}">
-                        <p><a href="${product.web_url}" target="_blank">More Info</a></p>
-                        <button class="btn" onclick="window.location.href='/summary/${index}/simple'">Simple Summary</button>
-                        <button class="btn" onclick="window.location.href='/summary/${index}/deeper'">Deeper Summary</button>
-                    `;
-                    productList.appendChild(productDiv);
-                });
-            });
-    });
+    // document.getElementById('searchBtn').addEventListener('click', () => {
+    //     const productName = document.getElementById('productInput').value;
+    //     fetch(`/api/products?name=${productName}`)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const productList = document.getElementById('productList');
+    //             productList.innerHTML = '';
+    //             data.forEach((product, index) => {
+    //                 const productDiv = document.createElement('div');
+    //                 productDiv.classList.add('product');
+    //                 productDiv.innerHTML = `
+    //                     <h3>${index + 1}. ${product.name} (${product.brand})</h3>
+    //                     <img src="${product.image_url}" alt="${product.name}">
+    //                     <p><a href="${product.web_url}" target="_blank">More Info</a></p>
+    //                     <button class="btn" onclick="window.location.href='/summary/${index}/simple'">Simple Summary</button>
+    //                     <button class="btn" onclick="window.location.href='/summary/${index}/deeper'">Deeper Summary</button>
+    //                 `;
+    //                 productList.appendChild(productDiv);
+    //             });
+    //         });
+    // });
 </script>
 
 </body>
-</html>
+<footer>
+    <p>Copyright reserved. Developed by 
+        <a href="https://www.linkedin.com/in/srishrachamalla/" target="_blank">Srish Rachamalla</a>
+    <a href="https://www.linkedin.com/in/saiteja-pallerla-668734225/" target="_blank">Saiteja Pallerla</a> and 
+
+    </p>
+</footer>
+
+</html> 

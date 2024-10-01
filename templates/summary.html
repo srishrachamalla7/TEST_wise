@@ -4,23 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Summary</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    <h1>Product Summary</h1>
 
-<div class="summary-container">
-    <h2>Product Summary</h2>
-    <div class="markdown-content">
-        {{ summary|safe }}
-    </div>
-</div>
+    <h2>{{ product.product_name }} by {{ product.brands }}</h2>
+    <img src="{{ product.image_url }}" alt="{{ product.product_name }}" width="200">
+    <p><strong>Nutri-Score:</strong> {{ product.nutriscore_grade }}</p>
+    <p><strong>Eco-Score:</strong> {{ product.ecoscore_grade }}</p>
 
-<footer>
-    <p>Copyright reserved. Developed by 
-    <a href="https://www.linkedin.com/in/saiteja-pallerla-668734225/" target="_blank">Saiteja Pallerla</a> and 
-    <a href="https://www.linkedin.com/in/srishrachamalla/" target="_blank">Srishrachamalla</a>
-    </p>
-</footer>
+    <h3>Summary:</h3>
+    <div>{{ summary | safe }}</div>
 
+    <a href="/">Back to Search</a>
 </body>
 </html>

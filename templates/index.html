@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ConsumNice</title>
+    <title>ConsumeNice</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -90,8 +90,8 @@
 
 
 <header>
-    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ConsumNice Logo"> <!-- Replace with actual file name -->
-    <h1>ConsumNice</h1>
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="ConsumeNice Logo"> <!-- Replace with actual file name -->
+    <h1>ConsumeNice</h1>
 </header>
 
 
@@ -126,31 +126,62 @@
                         <h3>${index + 1}. ${product.name} (${product.brand})</h3>
                         <img src="${product.image_url}" alt="${product.name}">
                         <p><a href="${product.web_url}" target="_blank">More Info</a></p>
-                        <button class="btn" onclick="getSummary(${index}, 'simple')">Simple Summary</button>
-                        <button class="btn" onclick="getSummary(${index}, 'deeper')">Deeper Summary</button>
+                        <button class="btn" onclick="getSummary('${productName}',${index}, 'simple')">Simple Summary</button>
+                        <button class="btn" onclick="getSummary('${productName}', ${index}, 'deeper')">Deeper Summary</button>
                     `;
                     productList.appendChild(productDiv);
                 });
             });
     });
-
-    function getSummary(productIndex, tone) {
-        fetch(`/api/products?name=${document.getElementById('productInput').value}`)
+    function getSummary(productName, productIndex, tone) {
+    // Fetch the product details first
+    fetch(`/api/products?name=${productName}`)
+        .then(response => response.json())
+        .then(products => {
+            const selectedProduct = products[productIndex];
+            fetch('/api/summary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ product: selectedProduct, tone: tone })
+            })
             .then(response => response.json())
-            .then(products => {
-                const selectedProduct = products[productIndex];
-                fetch('/api/summary', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ product: selectedProduct, tone: tone })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('summary').textContent = data.summary;
-                    document.getElementById('summarySection').style.display = 'block';
-                });
+            .then(data => {
+                document.getElementById('summary').textContent = data.summary;
+                document.getElementById('summarySection').style.display = 'block';
             });
-    }
+        });
+}
+
+    // function getSummary(productIndex, tone) {
+    //     // fetch(`/api/products?name=${document.getElementById('productInput').value}`)
+    //     const selectedProduct = productIndex;
+    //             fetch('/api/summary', {
+    //                 method: 'POST',
+    //                 headers: { 'Content-Type': 'application/json' },
+    //                 body: JSON.stringify({ product: selectedProduct, tone: tone })
+    //             })
+    //             .then(response => response.json())
+    //             .then(data => {
+    //                 document.getElementById('summary').textContent = data.summary;
+    //                 document.getElementById('summarySection').style.display = 'block';
+    //             });
+        // fetch(`/api/summary`)
+
+        //     .then(response => response.json())
+        //     .then(products => {
+        //         const selectedProduct = products[productIndex];
+        //         fetch('/api/summary', {
+        //             method: 'POST',
+        //             headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify({ product: selectedProduct, tone: tone })
+        //         })
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             document.getElementById('summary').textContent = data.summary;
+        //             document.getElementById('summarySection').style.display = 'block';
+        //         });
+        //     });
+    // }
     // document.getElementById('searchBtn').addEventListener('click', () => {
     //     const productName = document.getElementById('productInput').value;
     //     fetch(`/api/products?name=${productName}`)
