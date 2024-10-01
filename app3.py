@@ -70,7 +70,9 @@ def generate_summary(product, tone):
         nutriscore_grade = product.get('nutriscore_grade', 'Not mentioned')
         eco_score = product.get('ecoscore_grade', 'Not mentioned')
         packaging = product.get('packaging', 'Not mentioned')
-        ingredients = product.get('ingredients_text', 'Not mentioned')
+        # ingredients = product.get('ingredients_text', 'Not mentioned')
+        ingredients = product.get('ingredients', 'Not mentioned')
+        print(ingredients)
         nutrients = product.get('nutrients_data', 'Not mentioned')
         image_url = product.get('image_url', 'Not mentioned')
         web_url = product.get('url', 'Not mentioned')
@@ -115,8 +117,27 @@ def generate_summary(product, tone):
             # and if **NovaScore:** **['en:4-ultra-processed-food-and-drink-products']** 
             # make it **NovaScore:** **4-ultra-processed**
             # """
+    #         prompt = f"""
+    # You are an AI assistant analyzing consumer products. PLease dont give the answer in markdown foramt because it is not necessary. Here are the details:
+    # - Name: {name}
+    # - Brand: {brand}
+    # - EcoScore: {eco_score if eco_score else 'This product’s EcoScore is currently not specified, but its sustainability may vary based on its packaging and ingredients.'}
+    # - NutriScore: {nutriscore_grade if nutriscore_grade else 'The NutriScore for this product is not available at the moment, but it is crucial for evaluating health impacts.'}
+    # - NovaScore: {nova if nova else 'While the NovaScore isn’t specified, it’s essential to consider how processed a product is when evaluating its healthiness.'}
+    # - Ingredients: {ingredients if ingredients else 'This product contains a blend of ingredients typical for carbonated beverages.'}
+    # - Nutrients: {nutrients if nutrients else 'Nutritional information is valuable for understanding the health implications of this beverage.'}
+    # - Packaging: {packaging if packaging else 'The packaging can significantly influence the product’s environmental footprint.'}
+    # - Vitamins: {vitamins if vitamins else 'Vitamins play an essential role in health, and their presence can affect overall wellbeing.'}
+    # - Keywords: {keywords if keywords else 'Relevant keywords can highlight important features of the product.'}
+
+    # Please summarize the NutriScore, NovaScore, and EcoScore at the beginning and provide a description of each score as mentioned above. Your task is to provide an in-depth analysis of the product, focusing on:
+    # 1. Health impact: Explain how the ingredients, nutrients, and vitamins might affect human health.
+    # 2. Environmental impact: Assess the sustainability and environmental friendliness of the product, particularly its packaging.
+
+    # Ensure your response is informative and clear, helping users make conscious decisions about their health and the environment. Do not explicitly mention if any data is unknown or unavailable; instead, provide context or general information when specific data points are missing.
+    # """
             prompt = f"""
-    You are an AI assistant analyzing consumer products. Here are the details:
+    You are an AI assistant analyzing consumer products. Please provide the analysis in plain text without any special formatting, headers, or markdown. Here are the details:
     - Name: {name}
     - Brand: {brand}
     - EcoScore: {eco_score if eco_score else 'This product’s EcoScore is currently not specified, but its sustainability may vary based on its packaging and ingredients.'}
@@ -132,8 +153,9 @@ def generate_summary(product, tone):
     1. Health impact: Explain how the ingredients, nutrients, and vitamins might affect human health.
     2. Environmental impact: Assess the sustainability and environmental friendliness of the product, particularly its packaging.
 
-    Ensure your response is informative and clear, helping users make conscious decisions about their health and the environment. Do not explicitly mention if any data is unknown or unavailable; instead, provide context or general information when specific data points are missing.
+    Ensure your response is informative and clear, helping users make conscious decisions about their health and the environment. Do not use markdown, bullet points, or bold text; present the information in plain sentences without any formatting. Do not explicitly mention if any data is unknown or unavailable; instead, provide context or general information when specific data points are missing.
     """
+
 
 
     # Generate content using Gemini LLM

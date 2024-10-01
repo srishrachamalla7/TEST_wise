@@ -204,6 +204,61 @@
     //         });
     // });
 </script>
+<!-- <script>
+    // Function to fetch products based on the input
+    function fetchProducts() {
+        const productName = document.getElementById('productInput').value;
+        fetch(`/api/products?name=${productName}`)
+            .then(response => response.json())
+            .then(data => {
+                const productList = document.getElementById('productList');
+                productList.innerHTML = '';
+                data.forEach((product, index) => {
+                    const productDiv = document.createElement('div');
+                    productDiv.classList.add('product');
+                    productDiv.innerHTML = `
+                        <h3>${index + 1}. ${product.name} (${product.brand})</h3>
+                        <img src="${product.image_url}" alt="${product.name}">
+                        <p><a href="${product.web_url}" target="_blank">More Info</a></p>
+                        <button class="btn" onclick="getSummary('${product.name}', ${index}, 'simple')">Simple Summary</button>
+                        <button class="btn" onclick="getSummary('${product.name}', ${index}, 'deeper')">Deeper Summary</button>
+                    `;
+                    productList.appendChild(productDiv);
+                });
+            });
+    }
+
+    // Event listener for the search button
+    document.getElementById('searchBtn').addEventListener('click', fetchProducts);
+
+    // Event listener for the Enter key in the input field
+    document.getElementById('productInput').addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') { // Check if the key pressed is 'Enter'
+            fetchProducts();
+        }
+    });
+
+    // Function to fetch summary of the selected product
+    function getSummary(productName, productIndex, tone) {
+        // Fetch the product details first
+        fetch(`/api/products?name=${productName}`)
+            .then(response => response.json())
+            .then(products => {
+                const selectedProduct = products[productIndex];
+                fetch('/api/summary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ product: selectedProduct, tone: tone })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('summary').textContent = data.summary;
+                    document.getElementById('summarySection').style.display = 'block';
+                });
+            });
+    }
+</script> -->
+
 
 </body>
 </html>
